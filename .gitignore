@@ -1,0 +1,15 @@
+# Generated LaTeX files and editor metadata
+.DS_Store
+.~*
+~$*
+*.aux
+*.log
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.nav
+*.snm
+*.toc
+*.out
+# Reconstructed original; tracked as lossless parts
+/poster/poster_camera_ready_editable.pptx

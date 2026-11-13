@@ -1,0 +1,473 @@
+% =====================================================================
+% RaPD - Slides for NeurIPS 2026
+% Compile:  pdflatex slides.tex   (run twice for cross-references)
+% =====================================================================
+\PassOptionsToPackage{table}{xcolor}
+\documentclass[aspectratio=169,10pt]{beamer}
+
+% --- Theme & colors --------------------------------------------------
+\usetheme{default}
+\useinnertheme{rectangles}
+
+\definecolor{rapdblue}{RGB}{30,58,95}
+\definecolor{rapdorange}{RGB}{255,107,53}
+\definecolor{rapdgray}{RGB}{102,102,102}
+\definecolor{rapdlight}{RGB}{240,244,250}
+\definecolor{lightbluepurple}{RGB}{231,230,245}
+
+\setbeamercolor{title}{fg=rapdblue}
+\setbeamercolor{frametitle}{fg=rapdblue}
+\setbeamercolor{structure}{fg=rapdblue}
+\setbeamercolor{alerted text}{fg=rapdorange}
+\setbeamercolor{block title}{bg=rapdblue,fg=white}
+\setbeamercolor{block body}{bg=rapdlight,fg=black}
+\setbeamercolor{item}{fg=rapdblue}
+
+\setbeamerfont{frametitle}{size=\normalsize,series=\bfseries}
+\setbeamerfont{title}{size=\Large,series=\bfseries}
+\setbeamerfont{block title}{series=\bfseries,size=\footnotesize}
+\setbeamerfont{block body}{size=\footnotesize}
+
+% Custom frame title (wrap long titles)
+\setbeamertemplate{frametitle}{%
+  \vspace*{0.3em}
+  \begin{minipage}{\linewidth}
+    \color{rapdblue}\bfseries\normalsize\insertframetitle
+  \end{minipage}%
+  \vspace*{0.15em}\hrule height 0.6pt
+  \vspace*{0.2em}
+}
+
+% --- Packages --------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{tikz}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+% --- Shortcuts -------------------------------------------------------
+\newcommand{\hl}[1]{\textcolor{rapdorange}{\textbf{#1}}}
+\newcommand{\rapd}{\textbf{RaPD}}
+\newcommand{\srg}{\emph{SRG}}
+\newcommand{\cqar}{\emph{CQAR}}
+% Transition / story line at top of each frame
+\newcommand{\story}[1]{%
+  {\color{rapdgray}\itshape\footnotesize $\triangleright$~#1\par}\vspace{0.3em}}
+
+% Common figure path
+\graphicspath{{../figures/}{figures/}}
+
+% --- Title info ------------------------------------------------------
+\title[RaPD]{RaPD: Resolution-Agnostic Pixel Diffusion}
+\author{Paper ID \#5904}
+\date{NeurIPS 2026}
+
+% --- Footer (plain text, no colored box) -----------------------------
+\setbeamertemplate{footline}{%
+  \vspace*{0.2em}%
+  \hbox to \paperwidth{%
+    \hspace*{0.5cm}{\color{rapdgray}\footnotesize Paper ID \#5904 --- NeurIPS 2026}%
+    \hfill%
+    {\color{rapdgray}\footnotesize\insertframenumber\,/\,\inserttotalframenumber}\hspace*{0.5cm}%
+  }%
+  \vspace*{0.9em}%
+}
+\setbeamertemplate{navigation symbols}{}
+
+% =====================================================================
+\begin{document}
+
+% =================== PAGE 1: TITLE ===================================
+\begin{frame}[plain]
+  \vspace{-0.2em}
+  \begin{center}
+    {\color{rapdblue}\Large\bfseries RaPD: Resolution-Agnostic Pixel Diffusion via}\\[0.15em]
+    {\color{rapdblue}\Large\bfseries Semantics-Enriched Implicit Representations}\\[0.5em]
+    {\small\color{rapdgray} Paper ID \#5904}\\[0.15em]
+    {\footnotesize\color{rapdgray} NeurIPS 2026}\\[0.4em]
+    \includegraphics[width=0.62\textwidth,height=0.55\textheight,keepaspectratio]{fig_teaser.pdf}\\[0.3em]
+    {\footnotesize\itshape\color{rapdgray} RaPD performs diffusion in a continuous Neural Image Field latent and achieves resolution-agnostic image generation while keeping the diffusion cost fixed regardless of the output size.}
+  \end{center}
+\end{frame}
+
+% =================== PAGE 2: MOTIVATION ==============================
+\begin{frame}{Image generation is tied to discrete grids --- can we directly generate \alert{continuous pixels}?}
+  \story{We start by questioning a hidden assumption shared by today's image generative models.}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \footnotesize
+      \begin{itemize}
+        \item The visual world is \hl{continuous}, but VAE-latent and pixel-token diffusion both operate on \hl{fixed spatial grids}.
+        \item Higher resolution $\Rightarrow$ more tokens, more compute --- linear-to-quadratic scaling on the diffusion side.
+        \item Existing arbitrary-resolution methods (PixNerd, GAN-INR) only add continuity at the \hl{decoder} stage; the diffusion backbone still works on a fixed grid.
+      \end{itemize}
+      \vspace{0.4em}
+      \begin{block}{Our question}
+        \centering
+        Can diffusion \emph{itself} operate on a continuous image representation?
+      \end{block}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.85,every node/.style={font=\scriptsize}]
+        % --- (a) VAE latent: very coarse grid ---
+        \node[anchor=west] at (0,3.4) {\textbf{(a) VAE latent}};
+        \fill[rapdgray!20] (0,2.4) rectangle (3.0,3.0);
+        \draw[step=0.75,rapdgray,thick] (0,2.4) grid (3.0,3.0);
+        \draw[rapdgray,thick] (0,2.4) rectangle (3.0,3.0);
+        \node[anchor=west,gray] at (0,2.1) {coarse, $8\!\times\!$ down-sampled};
+        % --- (b) Pixel tokens: fine grid ---
+        \node[anchor=west] at (0,1.6) {\textbf{(b) Pixel tokens}};
+        \fill[rapdgray!10] (0,0.6) rectangle (3.0,1.2);
+        \draw[step=0.1875,gray,thin] (0,0.6) grid (3.0,1.2);
+        \draw[rapdgray,thick] (0,0.6) rectangle (3.0,1.2);
+        \node[anchor=west,gray] at (0,0.3) {fine, but still discrete};
+        % --- (c) Continuous NIF: smooth gradient, no grid ---
+        \node[anchor=west,rapdorange] at (0,-0.2) {\textbf{(c) Continuous NIF (Ours)}};
+        \shade[left color=rapdorange!25,right color=rapdblue!25]
+          (0,-1.2) rectangle (3.0,-0.6);
+        \draw[rapdorange,very thick] (0,-1.2) rectangle (3.0,-0.6);
+        \node[rapdorange,anchor=west] at (0,-1.5) {smooth field, query at any $\boldsymbol{q}$};
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% =================== PAGE 3: GAP =====================================
+\begin{frame}{Naive ``NIF + Diffusion'' fails: reconstruction-oriented latents are \alert{not generation-aware}}
+  \story{Our first idea was to plug existing NIF latents (LIIF / CLIF) into a DiT-style diffusion backbone. It does not work.}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.58\textwidth}
+      \centering
+      \includegraphics[width=\linewidth,height=0.55\textheight,keepaspectratio]{exp_render.pdf}\\[0.2em]
+      {\scriptsize\itshape\color{rapdgray}Reconstruction--generation gap of existing NIF representations: strong super-resolution reconstruction (top) but weak text-to-image generation (bottom).}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      \footnotesize
+      \begin{itemize}
+        \item LIIF / CLIF: trained for \hl{reconstruction} (pixel loss + lightweight decoder).
+        \item Apply DiT-style diffusion on top $\Rightarrow$ only \hl{coarse semantics, poor visual fidelity}.
+      \end{itemize}
+      \vspace{0.3em}
+      \begin{block}{Reconstruction--generation gap}
+        \begin{itemize}
+          \item Latent encodes \emph{low-level texture}, not semantic structure.
+          \item Decoder is a \emph{local operator} --- no inter-pixel reasoning.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% =================== PAGE 4: METHOD OVERVIEW =========================
+\begin{frame}{\rapd: shape the latent (\srg) and redesign the renderer (\cqar), in \alert{two stages}}
+  \story{We close the gap with two coupled innovations: SRG makes the latent generation-ready, CQAR makes the renderer semantic-aware.}
+  \begin{center}
+    \includegraphics[width=0.92\textwidth,height=0.46\textheight,keepaspectratio]{fig1.pdf}\\[0.15em]
+    {\scriptsize\itshape\color{rapdgray}Overview of RaPD. (A) Stage-1: semantically guided multi-resolution NIF learning. (B) Stage-2: text-conditioned flow matching in normalized NIF latents. (C) Inference: render one denoised latent at arbitrary resolutions via CQAR.}
+  \end{center}
+  \vspace{-0.2em}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.32\textwidth}
+      \footnotesize\textbf{(A) Stage-1.} NIF AE + \hl{Semantic Distillation} $\Rightarrow$ generation-aware latent.
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \footnotesize\textbf{(B) Stage-2.} Flow matching with \hl{$s\!=\!32$} timestep shift on dense NIF latent.
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \footnotesize\textbf{(C) Inference.} \hl{One denoised latent} $\rightarrow$ any $H'\!\times\!W'$ via the CQAR query grid.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% =================== PAGE 5: SRG =====================================
+\begin{frame}{\srg{} turns \alert{reconstruction-oriented NIF latents} into generation-aware ones}
+  \story{Innovation 1: shape the latent itself. The latent must inherit semantic structure from a vision foundation model.}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.55\textwidth}
+      \footnotesize
+      \textbf{Two components:}
+      \begin{itemize}
+        \item \hl{Semantic Distillation}: pool $\boldsymbol{z}$ $\rightarrow$ $1\!\times\!1$ conv $\rightarrow$ align with frozen \emph{DINOv2} patch features (marginal-cosine + distance-matrix losses).
+        \item \hl{Latent-Density-Aware Timestep Shift}:
+          $$ t = \tfrac{t_0}{t_0+(1-t_0)\,s}, \quad s\!=\!32 $$
+          (vs SD3's $s\!\in\![1,3]$); pushes mass toward noisier states where dense NIF needs most denoising.
+      \end{itemize}
+      \vspace{0.3em}
+      \begin{block}{Why not just REPA / VA-VAE?}
+        Our alignment supervises a \hl{dense NIF latent} directly, unlike prior work on downsampled VAE latents (REPA-E, VA-VAE) or denoiser features (REPA). The projection branch transfers semantic structure \hl{without changing the latent layout}, preserving the coordinate-based rendering pathway. 
+      \end{block}
+    \end{column}
+    \begin{column}{0.43\textwidth}
+      \centering
+      \begin{tikzpicture}
+        \node[anchor=south west, inner sep=0] (fig1) at (0,0) {%
+          \includegraphics[width=\linewidth,height=0.62\textheight,keepaspectratio]{fig1.pdf}%
+        };
+        \begin{scope}[x={(fig1.south east)}, y={(fig1.north west)}]
+          % --- Box 1: bottom up 10px, left edge right 20px ---
+          \draw[red, dashed, very thick, rounded corners=2pt]
+            (0.11, 0.535) rectangle (0.32, 0.66);
+          \node[red, anchor=south, font=\scriptsize\bfseries]
+            at (0.215, 0.66) {(i) Semantic Distillation};
+          % --- Box 2: down another 10px, label moved above box ---
+          \draw[red, dashed, very thick, rounded corners=2pt]
+            (0.74, 0.80) rectangle (0.96, 0.88);
+          \node[red, anchor=south, font=\scriptsize\bfseries]
+            at (0.85, 0.88) {(ii) Timestep Shift};
+        \end{scope}
+      \end{tikzpicture}\\[0.1em]
+      {\scriptsize\itshape\color{rapdgray}Two SRG components highlighted in red on the RaPD framework.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% =================== PAGE 6: CQAR ====================================
+\begin{frame}{\cqar{} enables \alert{inter-pixel reasoning} at decoding via coordinate-conditioned attention}
+  \story{Innovation 2: redesign the renderer. A semantically rich latent is wasted if the decoder is a pure pointwise operator.}
+  \begin{center}
+    \includegraphics[width=0.85\textwidth,height=0.42\textheight,keepaspectratio]{fig2.pdf}\\[0.15em]
+    {\scriptsize\itshape\color{rapdgray}Implicit decoder comparison. (A) LIIF: per-pixel MLP. (B) CLIF: shallow CNN. (C) CQAR: coordinate-conditioned windowed attention over output tokens.}
+  \end{center}
+  \vspace{0.1em}
+  \begin{columns}[c,onlytextwidth]
+    \begin{column}{0.31\textwidth}
+      \centering
+      \footnotesize\textbf{(A) LIIF}\\[0.15em]
+      per-pixel MLP\\
+      \hl{no neighbor info}
+    \end{column}
+    \begin{column}{0.31\textwidth}
+      \centering
+      \footnotesize\textbf{(B) CLIF}\\[0.15em]
+      shallow CNN\\
+      \hl{limited receptive field}
+    \end{column}
+    \begin{column}{0.31\textwidth}
+      \centering
+      \footnotesize\textbf{(C) CQAR (Ours)}\\[0.15em]
+      windowed attention over\\
+      \hl{output coordinate tokens}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% =================== PAGE 7: GenEval Table ===========================
+\begin{frame}{Quantitative comparison on \alert{GenEval} at $512\!\times\!512$}
+  \story{RaPD matches the strongest pixel-diffusion baselines at the same parameter budget.}
+  \begin{center}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{l|c|ccccccc}
+    \toprule
+    \multirow{2}{*}{Method} & \multirow{2}{*}{\#Params} & \multicolumn{7}{c}{GenEval $\uparrow$} \\
+     &  & Single Obj. & Two Obj. & Counting & Colors & Position & Color Attr. & Overall \\
+    \midrule
+    \rowcolor{gray!15}
+    \multicolumn{9}{c}{$\triangledown$ \textit{Latent Diffusion Models}} \\
+    LDM             & 1.4B & 0.92 & 0.29 & 0.23 & 0.70 & 0.02 & 0.05 & 0.37 \\
+    SD3             & 8B   & 0.98 & 0.84 & 0.66 & 0.74 & 0.40 & 0.43 & 0.68 \\
+    FLUX.1-dev      & 12B  & 0.99 & 0.81 & 0.79 & 0.74 & 0.20 & 0.47 & 0.67 \\
+    DALL-E 3        & --   & 0.96 & 0.87 & 0.47 & 0.83 & 0.43 & 0.45 & 0.67 \\
+    \midrule
+    \rowcolor{gray!15}
+    \multicolumn{9}{c}{$\triangledown$ \textit{Pixel Diffusion Models}} \\
+    PixelFlow-XL/4  & 882M & --   & --   & --   & --   & --   & --   & 0.60 \\
+    PixNerd-XXL/16  & 1.2B & 0.97 & 0.86 & 0.44 & 0.83 & 0.71 & 0.53 & 0.73 \\
+    DeCo-XXL/16     & 1.1B & \textbf{1.00} & 0.92 & \textbf{0.72} & 0.91 & \textbf{0.80} & \textbf{0.79} & \textbf{0.86} \\
+    PixelGen-XXL/16 & 1.1B & 0.99 & 0.88 & 0.59 & 0.90 & 0.70 & 0.70 & 0.79 \\
+    PixNerd-XXL/16 ($\ddagger$)  & 1.2B & 0.98 & 0.82 & 0.43 & 0.81 & 0.66 & 0.55 & 0.71 \\
+    DeCo-XXL/16 ($\ddagger$)     & 1.1B & 0.99 & 0.92 & 0.65 & 0.91 & 0.71 & 0.77 & 0.83 \\
+    PixelGen-XXL/16 ($\ddagger$) & 1.1B & 0.99 & 0.88 & 0.58 & 0.91 & 0.70 & 0.67 & 0.79 \\
+    \midrule
+    \rowcolor{lightbluepurple}
+    \textbf{RaPD}   & 1.1B & \underline{0.99} & \textbf{0.93} & \textbf{0.72} & \textbf{0.93} & \underline{0.77} & 0.74 & \underline{0.85} \\
+    \bottomrule
+  \end{tabular}\\[0.4em]
+  {\scriptsize\itshape\color{rapdgray}Text-to-image generation on GenEval at a $512\!\times\!512$ resolution. $\ddagger$ denotes results obtained by running the officially released models with the same random seed and computing environment as RaPD.}
+  \end{center}
+\end{frame}
+
+% =================== PAGE 8: DPG-Bench Table =========================
+\begin{frame}{Quantitative comparison on \alert{DPG-Bench} at $512\!\times\!512$}
+  \story{DPG-Bench has known reproduction noise of $\sim$1--3 points; RaPD remains within the top tier of pixel-diffusion baselines.}
+  \begin{center}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{l|c|cccccc}
+    \toprule
+    \multirow{2}{*}{Method} & \multirow{2}{*}{\#Params} & \multicolumn{6}{c}{DPG-Bench $\uparrow$}  \\
+     &  & Global & Entity & Attribute & Relation & Other & Average \\
+    \midrule
+    \rowcolor{gray!15}
+    \multicolumn{8}{c}{$\triangledown$ \textit{Latent Diffusion Models}} \\
+    SD v2            & 0.86B & 77.67 & 78.13 & 74.91 & 80.72 & 80.66 & 68.1 \\
+    PixArt-$\alpha$  & 0.61B & 74.97 & 79.32 & 78.60 & 82.57 & 76.96 & 71.1 \\
+    DALL-E 3         & --    & 90.97 & 89.61 & 88.39 & 90.58 & 89.83 & 83.5 \\
+    \midrule
+    \rowcolor{gray!15}
+    \multicolumn{8}{c}{$\triangledown$ \textit{Pixel Diffusion Models}} \\
+    PixelFlow-XL/4   & 882M  & --    & --    & --    & --    & --    & 77.9 \\
+    PixNerd-XXL/16   & 1.2B  & 80.5  & 87.9  & 87.2  & 91.3  & 72.8  & 80.9 \\
+    PixelGen-XXL/16  & 1.1B  & --    & --    & --    & --    & --    & --   \\
+    DeCo-XXL/16      & 1.1B  & --    & --    & --    & --    & --    & 81.4 \\
+    PixNerd-XXL/16 ($\ddagger$)  & 1.2B & 80.5 & 87.9 & 87.2 & 91.3 & 72.8 & 80.9 \\
+    PixelGen-XXL/16 ($\ddagger$) & 1.1B & --   & --   & --   & --   & --   & --   \\
+    DeCo-XXL/16 ($\ddagger$)     & 1.1B & 88.5 & 89.8 & 88.9 & 90.4 & 83.6 & 81.9 \\
+    \midrule
+    \rowcolor{lightbluepurple}
+    \textbf{RaPD}    & 1.1B  & 87.8  & 88.6  & 86.4  & 87.6  & 88.6  & \textbf{80.3} \\
+    \bottomrule
+  \end{tabular}\\[0.4em]
+  {\scriptsize\itshape\color{rapdgray}Text-to-image generation results on DPG-Bench at a $512\!\times\!512$ resolution. $\ddagger$ denotes results obtained by running the officially released models with the same random seed and computing environment as RaPD.}
+  \end{center}
+\end{frame}
+
+% =================== PAGE 9: QUALITATIVE COMPARISON ==================
+\begin{frame}{Qualitative comparison: \alert{visual fidelity} and prompt adherence}
+  \story{Side-by-side with the closest pixel-diffusion baselines on the same prompts.}
+  \begin{center}
+    \includegraphics[width=0.96\textwidth,height=0.70\textheight,keepaspectratio]{fig_comparison.pdf}\\[0.15em]
+    {\scriptsize\itshape\color{rapdgray}Qualitative text-to-image comparison with baselines (PixelGen, DeCo, PixNerd) at $512^2$.}
+  \end{center}
+\end{frame}
+
+% =================== PAGE 10: ARBITRARY-RESOLUTION ===================
+\begin{frame}{Fixed latent $\to$ \alert{Any Resolution}: GenEval and DPG-Bench across scales}
+  \story{Same model and same denoised latent; only the CQAR query coordinate grid changes.}
+  \begin{center}
+    \includegraphics[width=0.92\textwidth,height=0.70\textheight,keepaspectratio]{fig_our_results.pdf}
+  \end{center}
+  \vspace{-0.4em}
+  \hspace*{0.04\textwidth}%
+  \begin{minipage}{0.92\textwidth}
+    \raggedright
+    \scriptsize\itshape\color{rapdgray}
+    (A) Results on GenEval: samples generated from short, compositional prompts and rendered at multiple output resolutions;\\
+    (B) Results on DPG-Bench: RaPD faithfully captures fine-grained semantic and stylistic details specified in the prompt.
+  \end{minipage}
+\end{frame}
+
+% =================== PAGE 11: COMPUTE SCALING TABLE ==================
+\begin{frame}{Efficiency: \alert{Diffusion cost stays fixed} as output resolution grows}
+  \story{Fixed-grid pixel diffusion grows quadratically in token count; RaPD's diffusion stage stays constant.}
+  \vspace{0.5em}
+  \begin{center}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{l|cc|cc|cc|cc}
+    \toprule
+    \multirow{2}{*}{Method} &
+    \multicolumn{2}{c|}{$512\!\times\!512$} &
+    \multicolumn{2}{c|}{$1024\!\times\!1024$} &
+    \multicolumn{2}{c|}{$2048\!\times\!2048$} &
+    \multicolumn{2}{c}{$4096\!\times\!4096$} \\
+     &
+    \#Tokens & Time (s) &
+    \#Tokens & Time (s) &
+    \#Tokens & Time (s) &
+    \#Tokens & Time (s) \\
+    \midrule
+    PixelGen        & 1{,}024 & 0.19 & 4{,}096  & 0.60 & 16{,}384 & 4.72 & 65{,}536 & 61.46 \textcolor{red}{(+61.27)} \\
+    DeCo            & 1{,}024 & 0.21 & 4{,}096  & 0.67 & 16{,}384 & 5.03 & 65{,}536 & 62.72 \textcolor{red}{(+62.51)} \\
+    \rowcolor{lightbluepurple}
+    \textbf{RaPD}   & 1{,}024 & 0.23 & 1{,}024  & 0.34 & 1{,}024  & 0.68 & 1{,}024  & \textbf{2.13} {\color{rapdorange}(+1.9)} \\
+    \bottomrule
+  \end{tabular}\\[0.4em]
+  {\scriptsize\itshape\color{rapdgray}Computational scaling with output resolution. Per-image inference time is reported at $1\!\times\!$ to $8\!\times\!$ output scales. RaPD keeps the expensive denoising stage nearly fixed, while fixed-grid pixel diffusion methods grow with the output resolution.}
+  \end{center}
+  \vspace{0.5em}
+  \begin{block}{Take-away}
+    \centering
+    \hl{Diffusion cost} is fixed regardless of output size.
+    Only \hl{CQAR rendering} grows linearly with the queried output token count.
+  \end{block}
+\end{frame}
+
+% =================== PAGE 12: ABLATIONS ==============================
+\begin{frame}{Ablation Study: Each Component is Necessary}
+  \story{Are all three design choices really needed? Yes --- removing any of them produces clear degradation.}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.32\textwidth}
+      \centering
+      % Fixed-height image box: keeps figure visually anchored regardless of aspect ratio
+      \parbox[t][0.42\textheight][c]{\linewidth}{%
+        \centering
+        \includegraphics[width=\linewidth,height=0.40\textheight,keepaspectratio]{exp_ablation.pdf}%
+      }\\[0.4em]
+      {\scriptsize\itshape\color{rapdgray}Ablation study of representation alignment and CQAR.}\\[0.4em]
+      {\scriptsize \textbf{(a) VF teacher}: DINOv2 gives the\\clearest semantic regions}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \centering
+      \parbox[t][0.42\textheight][c]{\linewidth}{%
+        \centering
+        \includegraphics[width=\linewidth,height=0.40\textheight,keepaspectratio]{exp_timeshift.pdf}%
+      }\\[0.4em]
+      {\scriptsize\itshape\color{rapdgray}Effect of timestep shift on a test prompt.}\\[0.4em]
+      {\scriptsize \textbf{(b) Timestep shift}: small $s$ degrades\\structure; $s\!=\!32$ best}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \centering
+      \parbox[t][0.42\textheight][c]{\linewidth}{%
+        \centering
+        \includegraphics[width=\linewidth,height=0.40\textheight,keepaspectratio]{exp_feature.pdf}%
+      }\\[0.4em]
+      {\scriptsize\itshape\color{rapdgray}Feature visualization of LIIF, CLIF, CQAR.}\\[0.4em]
+
+      {\scriptsize \textbf{(c) Renderer}: CQAR exploits semantic\\features for sharpest output}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% =================== PAGE 13: CONCLUSION =============================
+\begin{frame}{Conclusions: Contributions, Limitations, and Future work}
+  \story{We end with an honest summary: what we have shown, where the boundaries lie, and what comes next.}
+
+  % --- Contributions banner (top, compact) ---
+  \begin{block}{Contributions}
+    \scriptsize
+    \begin{itemize}[label=$\bullet$,leftmargin=1.4em,topsep=0pt,itemsep=2pt,parsep=0pt]
+      \item \textbf{(i) \rapd:} a resolution-agnostic pixel diffusion framework that directly generates continuous image signals in a NIF latent space.
+      \item \textbf{(ii) \srg:} transforms reconstruction-oriented continuous latents into generation-aware representations via semantic distillation + density-aware timestep shift.
+      \item \textbf{(iii) \cqar:} coordinate-conditioned, scale-aware Transformer renderer for spatially coherent, arbitrary-resolution rendering with fixed diffusion cost.
+    \end{itemize}
+  \end{block}
+  \vspace{0.2em}
+
+  % --- Limitations + Future Work (2 columns) ---
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.49\textwidth}
+      \begin{block}{Limitations}
+        \scriptsize
+        \begin{itemize}[label=$\bullet$,leftmargin=1.2em,topsep=0pt,itemsep=2pt,parsep=0pt]
+          \item Training data scale (36M; vs commercial billion-scale).
+          \item Compact text encoder (Qwen3-1.7B).
+          \item Inference stack not yet hardware-optimized.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{block}{Future Work}
+        \scriptsize
+        \begin{itemize}[label=$\bullet$,leftmargin=1.2em,topsep=0pt,itemsep=2pt,parsep=0pt]
+          \item Scale to billion-data + larger denoiser.
+          \item Editing \& control (ControlNet, instruction editing).
+          \item Hardware-aware inference (FlashAttention, FP8, fused kernels).
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+  \vspace{0.3em}
+  \begin{center}
+    \scriptsize\color{rapdgray}\itshape Code \& checkpoints: to be released upon acceptance.
+  \end{center}
+\end{frame}
+
+% =====================================================================
+\end{document}

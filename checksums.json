@@ -1,0 +1,196 @@
+{
+  "original_files": [
+    {
+      "path": "figures/exp_ablation.pdf",
+      "size": 959693,
+      "sha256": "a6e37f1628803023b0599b1ff06137f564aa37bf84f61cae1cda652e20c0a10b"
+    },
+    {
+      "path": "figures/exp_feature.pdf",
+      "size": 313290,
+      "sha256": "924a9a6a2bdbfb71b5be28d6796430f3455814c2e4651456ea2a25756e791c32"
+    },
+    {
+      "path": "figures/exp_render.pdf",
+      "size": 603784,
+      "sha256": "1f2f965b93556367e1cb20ca1af5653feb1fcdd9b2f94d32b60cbab1b074f03b"
+    },
+    {
+      "path": "figures/exp_timeshift.pdf",
+      "size": 313285,
+      "sha256": "aa0add5dc7461a8b6b55c0c319d6d72c3cec484fbd38481a78c392f922a74cc4"
+    },
+    {
+      "path": "figures/fig1.pdf",
+      "size": 967953,
+      "sha256": "301bdcab658d83f75f6d6a2a39eb9e7b7ea90dddb8854e5df3d70e722782ea24"
+    },
+    {
+      "path": "figures/fig2.pdf",
+      "size": 135828,
+      "sha256": "985e48ac1c7156d9163b2723d95bfa06aea61f4ad9e39622837c9e10356246b5"
+    },
+    {
+      "path": "figures/fig_comparison.pdf",
+      "size": 1439297,
+      "sha256": "ef58fb5230b2f0f61d35db76f4f69eb8233c873e59ba58cf1f1d414a004d474f"
+    },
+    {
+      "path": "figures/fig_our_results.pdf",
+      "size": 2023813,
+      "sha256": "77d00743888b076448e09a03d90b5d9989d507bb3123a6e22d407f9ca4049cc7"
+    },
+    {
+      "path": "figures/fig_teaser.pdf",
+      "size": 183752,
+      "sha256": "7cc8db477662a6dfbd078fe19d5bc8d63fcd0d8508f6eddb1b69c818db69f72f"
+    },
+    {
+      "path": "poster/assets/exp_ablation.svg",
+      "size": 869181,
+      "sha256": "7fb34b25e193597ba5875173c29b2cf40a4c72a74a467f9831177cd2cdbe81a4"
+    },
+    {
+      "path": "poster/assets/exp_render.svg",
+      "size": 692331,
+      "sha256": "b1c5355f253adbbac04574a35a16d9d3cb70929e26422b6c4bc7e38bcb8ff789"
+    },
+    {
+      "path": "poster/assets/exp_timeshift.svg",
+      "size": 416598,
+      "sha256": "d4728baa4df4b5d97a627460a02bea7dfb768ff7af9e1514e7a18313db3760af"
+    },
+    {
+      "path": "poster/assets/fig1.svg",
+      "size": 1605818,
+      "sha256": "ed0aff58d7dcdce46ad1ac384077a37f83c7bc34c49c201739bd9877b34c0f01"
+    },
+    {
+      "path": "poster/assets/fig2.svg",
+      "size": 351104,
+      "sha256": "581028587d0ee279f97caa28193c34eadeb95b4c1f0d06cbdfa0df31abfc621c"
+    },
+    {
+      "path": "poster/assets/fig_comparison.svg",
+      "size": 1986918,
+      "sha256": "eb32e675d2535512bba77597cdfc8e1d700f83c3791f600ed5d1cb2d92a99f2c"
+    },
+    {
+      "path": "poster/assets/fig_our_results.svg",
+      "size": 2826416,
+      "sha256": "a135ad8dc5eb5130f2075cd499cf55d39078a3d14e4ceb4c58942eededdcf13b"
+    },
+    {
+      "path": "poster/assets/fig_teaser.svg",
+      "size": 115668,
+      "sha256": "b5c51fcf9c421e8161f8fed07ceb53829a49bb9bd9c5210ec15a54037a3cf717"
+    },
+    {
+      "path": "poster/logo/NeurIPS_logo.svg",
+      "size": 36247,
+      "sha256": "b582019d2789b6706dde66b046e6ffc8c7a5d029a609bd1783eb392e8ea34fce"
+    },
+    {
+      "path": "poster/logo/Vivo-Logo.png",
+      "size": 21195,
+      "sha256": "85ae28fab05be63a23bf592d2591f291cfb63ba946737759ae20eb4185154a36"
+    },
+    {
+      "path": "poster/logo/logo.pdf",
+      "size": 133701,
+      "sha256": "c510b4cd8cc9506c907ffa3ca3ff21f2c8e6ff24fb8d36fa5952d984b78165dc"
+    },
+    {
+      "path": "poster/logo/logo.pptx",
+      "size": 13426688,
+      "sha256": "4cff4327c5a6610ca994f2b226ef289a449e7f3ccd87cb1f7c5b7ebe90cabec4"
+    },
+    {
+      "path": "poster/logo/logo_horizon.pdf",
+      "size": 266240,
+      "sha256": "193bd665431d4a1cdf6b20f8efc57dc8f5bdcd0b0efe941df5b9bb0516617795"
+    },
+    {
+      "path": "poster/logo/qrcode_wangwhtj.github.io.png",
+      "size": 5946,
+      "sha256": "4fa72960ce840000c554a902ea8f43631be308cfc58f00f313fe718a11ab1b85"
+    },
+    {
+      "path": "poster/logo/南大.png",
+      "size": 42623,
+      "sha256": "35e11f6801149ad3c01cbeb4a0651c4819c6de1457bbb2f70de470ff8998144e"
+    },
+    {
+      "path": "poster/logo/同济.png",
+      "size": 8161,
+      "sha256": "075ec146f6f7226973b0c41e4ea7f27fa783f2dc989802b3011020d1a8979694"
+    },
+    {
+      "path": "poster/logo/同济校徽.png",
+      "size": 13430,
+      "sha256": "960a958b3207547c86b2be37ec2d81377d0df7d1debd9407378f717b683b3497"
+    },
+    {
+      "path": "poster/poster_camera_ready.pdf",
+      "size": 4968774,
+      "sha256": "7feb6deab6d302cf215ad714899783d61f59461cb6e567c1b4ed8ce5221cf430"
+    },
+    {
+      "path": "poster/poster_camera_ready.tex",
+      "size": 9486,
+      "sha256": "bb32fb66d363eab423d4b7d985a32aa12d7a223499b6f2aeffa78035f20a58da"
+    },
+    {
+      "path": "poster/poster_camera_ready_editable.pdf",
+      "size": 8911246,
+      "sha256": "dcaa438afb9862a4953add10b6bf101feaeed2dccd4b82116dc3aac426c17842"
+    },
+    {
+      "path": "poster/poster_camera_ready_editable.pptx",
+      "size": 106340352,
+      "sha256": "fcac375d42db8236779ceeb661f9e7aab3dd9ed4354e7231bcbc927e7ec8e7cb"
+    },
+    {
+      "path": "project page/assets/fig_our_results.png",
+      "size": 448672,
+      "sha256": "f858d577b7465db99b21bc61a3ecccfbb070e6b524c1a966042a2023b6c5b1f7"
+    },
+    {
+      "path": "slide/logo_horizon.pdf",
+      "size": 261181,
+      "sha256": "0a78b736e5fc6f66af34569f98710cf64558c39ae88561e3ce5b3a92cf315ad2"
+    },
+    {
+      "path": "slide/slides_camera_ready.pdf",
+      "size": 7791047,
+      "sha256": "7b052cfa7967dbd60010f687c55bcaf499f93d73ed2cf301a89e685f6e07fe0c"
+    },
+    {
+      "path": "slide/slides_camera_ready.tex",
+      "size": 26228,
+      "sha256": "61978a0782ea5d18a4afc9e3b22b02ffca57db5bdac1fdeb1d47dc20c5e18706"
+    },
+    {
+      "path": "slide/slides_first_submit.pdf",
+      "size": 7220338,
+      "sha256": "d9cc37e228726080c5d19bfa21f7c60034d5e4385c7c822823f6cef4942bc96d"
+    },
+    {
+      "path": "slide/slides_first_submit.tex",
+      "size": 23662,
+      "sha256": "f9a08ed389335cdb9aeba40ae8ea80dad0ed23f4fc7a51af7d18c0b7581fd3e4"
+    }
+  ],
+  "poster_parts": [
+    {
+      "path": "poster/poster_camera_ready_editable.pptx.part01",
+      "size": 67108864,
+      "sha256": "e65ab996478efad79d8009b35d04b2b10dc91bf9b0ff8a3ebc78bb7aaff5938a"
+    },
+    {
+      "path": "poster/poster_camera_ready_editable.pptx.part02",
+      "size": 39231488,
+      "sha256": "57ac836fdcaa4a913eec61d9994e44bbde26440278ad2ed3192cc293e790b711"
+    }
+  ]
+}
